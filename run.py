@@ -4,7 +4,7 @@
 from atsp import cities, distance
 from itertools import permutations
 from atsp.util import Path
-from random import sample, choice
+from random import sample, choice, randint
 from pprint import pprint
 from timeit import Timer
 
@@ -97,6 +97,12 @@ class Pool:
     def __init__( self, population, fitness_function ):
         self.population = population
         self.fitness = fitness_function
+        self.genes = set()
+
+        # create a set of all genes in the pool for mutation
+        for c in self.population:
+            for g in c:
+                self.genes.add( g )
 
     def rank( self ):
         ranking = [ (self.fitness(c), c) for c in self.population ]
@@ -108,18 +114,42 @@ class Pool:
         # remove the worst item
         del ranking[-1]
 
+        # get the chromosome for each sex
         male = ranking[0][1]
         female = ranking[1][1]
 
-        child = set()
-        while len(child) < len(male):
-            random_gene = choice( # [!] here
-            child.add(  )
+        # slice the chromosomes
+        male_part = male[:len(male)/2+1]
+        female_part = female[len(male)/2:-1]
+
+        # do a random mutation on a reoccuring element
+
+        print female_part, male_part
+
+        # combine the chromosomes into a child
+        # child = male_part + female_part
+
+        child = []
+
+        # [!] give up
 
         child = "".join(child)
 
-        fresh_population = [i[1] for i in ranking]
-        fresh_population.append( child )
+
+        # mutate on the basis of rank
+
+#        def mutate( chromosome ):
+#            mutant = list(chromosome)
+#            mutant[randint(0, len(chromosome))-1] = choice(list(self.genes))
+#            return mutant
+#
+#        fresh_population = []
+#
+#        for k,v in ranking:
+#            a = v
+#            for i in range(k):
+#                a = mutate(a)
+#            fresh_population.append( a )
 
         self.population = fresh_population
 
@@ -163,6 +193,9 @@ if __name__ == "__main__":
 
 
     def fitness_function( path ):
+        if len(set(path)) < len(path):
+            # low fitness value is good fitness !
+            return 50000
         return len( Path( path, distance ) )
 
     g = GeneticAlgorithm(
