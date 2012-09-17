@@ -4,7 +4,7 @@
 from atsp import cities, distance
 from itertools import permutations
 from atsp.util import Path
-from random import sample
+from random import sample, choice
 from pprint import pprint
 from timeit import Timer
 
@@ -36,6 +36,7 @@ class BruteForce(Solution):
 
 
 class GeneticAlgorithm(Solution):
+
     def __init__( self, phenotypes, population_size, fitness_function ):
         self.phenotypes = phenotypes
         self.population_size = population_size
@@ -43,11 +44,11 @@ class GeneticAlgorithm(Solution):
 
         # creates mappings for the encoding
         self.mapping = dict( enumerate( self.phenotypes ) )
-        # maps the genotype to phenotype {A: Bergen, ... }
+        # maps the genotype to phenotype {A -> Bergen, ... }
         self.mapping = dict(
             [ ( chr(65 +int(k)), v ) for k,v in self.mapping.items() ]
         )
-        # maps the phenotype to genotype {Bergen: A, ... }
+        # maps the phenotype to genotype {Bergen -> A, ... }
         self.reverse_mapping = dict(
             [ (v, k) for k,v in self.mapping.items() ]
         )
@@ -86,11 +87,45 @@ class GeneticAlgorithm(Solution):
             chromosome.append( self.reverse_mapping[g] )
         return chromosome
 
+    def to_pool( self ):
+        return Pool( self.population, self.fitness )
 
     def fitness( self, chromosome ):
         return fitness_function( self.to_phenotype(chromosome) )
 
+class Pool:
+    def __init__( self, population, fitness_function ):
+        self.population = population
+        self.fitness = fitness_function
 
+    def rank( self ):
+        ranking = [ (self.fitness(c), c) for c in self.population ]
+        ranking = sorted( ranking, key=lambda r: r[0] )
+        return ranking
+
+    def generation( self ):
+        ranking = self.rank()
+        # remove the worst item
+        del ranking[-1]
+
+        male = ranking[0][1]
+        female = ranking[1][1]
+
+        child = set()
+        while len(child) < len(male):
+            random_gene = choice( # [!] here
+            child.add(  )
+
+        child = "".join(child)
+
+        fresh_population = [i[1] for i in ranking]
+        fresh_population.append( child )
+
+        self.population = fresh_population
+
+        print "New population size is: ", len( self.population )
+
+        return child, self.fitness(child)
 
 if __name__ == "__main__":
 
@@ -132,18 +167,16 @@ if __name__ == "__main__":
 
     g = GeneticAlgorithm(
         phenotypes=cities[:6],
-        population_size=5,
+        population_size=10,
         fitness_function=fitness_function
     )
 
-    g.initialize_population()
+    # pprint( g.population )
 
-    for c in g.population:
-        print g.fitness( c )
+    p = g.to_pool()
 
-    pprint( g.population )
-
-
+    for i in range(20):
+        print p.generation()
 
 
 
