@@ -1,9 +1,12 @@
 #!/usr/bin/env python2.7
 # -*- coding: utf8 -*-
 
-from atsp import cities, distance
-from itertools import permutations
+
 from atsp.util import Path
+from atsp import cities, distance
+from atsp.encoder import LetterEncoder
+from atsp.pool import Pool, Child
+from itertools import permutations
 from random import sample, choice, randint
 from pprint import pprint
 from timeit import Timer
@@ -38,124 +41,12 @@ class BruteForce(Solution):
 class GeneticAlgorithm(Solution):
 
     def __init__( self, phenotypes, population_size, fitness_function ):
-        self.phenotypes = phenotypes
-        self.population_size = population_size
-        self.fitness_function = fitness_function
-
-        # creates mappings for the encoding
-        self.mapping = dict( enumerate( self.phenotypes ) )
-        # maps the genotype to phenotype {A -> Bergen, ... }
-        self.mapping = dict(
-            [ ( chr(65 +int(k)), v ) for k,v in self.mapping.items() ]
-        )
-        # maps the phenotype to genotype {Bergen -> A, ... }
-        self.reverse_mapping = dict(
-            [ (v, k) for k,v in self.mapping.items() ]
-        )
-
-        self.population = self.initialize_population()
+        pass
 
 
-    def initialize_population( self ):
-        population = set()
-
-        # unpredictable time here (separate this from the algorithm run)
-        while len(population) < self.population_size:
-            chromosome = sample( self.mapping.keys(), len( self.phenotypes ) )
-            population.add( "".join(chromosome) )
-
-        return population
 
 
-    def encode( self, phenotype ):
-        return self.reverse_mapping[phenotype]
 
-    def decode( self, genotype ):
-        return self.mapping[genotype]
-
-    def to_phenotype( self, chromosome ):
-        phenotype = []
-        for c in chromosome:
-            phenotype.append( self.decode( c ) )
-        return phenotype
-
-    def to_chromosome( self, phenotype ):
-        if phenotype is Path:
-            phenotype = phenotype.path
-        chromosome = []
-        for g in phenotype:
-            chromosome.append( self.reverse_mapping[g] )
-        return chromosome
-
-    def to_pool( self ):
-        return Pool( self.population, self.fitness )
-
-    def fitness( self, chromosome ):
-        return fitness_function( self.to_phenotype(chromosome) )
-
-class Pool:
-    def __init__( self, population, fitness_function ):
-        self.population = population
-        self.fitness = fitness_function
-        self.genes = set()
-
-        # create a set of all genes in the pool for mutation
-        for c in self.population:
-            for g in c:
-                self.genes.add( g )
-
-    def rank( self ):
-        ranking = [ (self.fitness(c), c) for c in self.population ]
-        ranking = sorted( ranking, key=lambda r: r[0] )
-        return ranking
-
-    def generation( self ):
-        ranking = self.rank()
-        # remove the worst item
-        del ranking[-1]
-
-        # get the chromosome for each sex
-        male = ranking[0][1]
-        female = ranking[1][1]
-
-        # slice the chromosomes
-        male_part = male[:len(male)/2+1]
-        female_part = female[len(male)/2:-1]
-
-        # do a random mutation on a reoccuring element
-
-        print female_part, male_part
-
-        # combine the chromosomes into a child
-        # child = male_part + female_part
-
-        child = []
-
-        # [!] give up
-
-        child = "".join(child)
-
-
-        # mutate on the basis of rank
-
-#        def mutate( chromosome ):
-#            mutant = list(chromosome)
-#            mutant[randint(0, len(chromosome))-1] = choice(list(self.genes))
-#            return mutant
-#
-#        fresh_population = []
-#
-#        for k,v in ranking:
-#            a = v
-#            for i in range(k):
-#                a = mutate(a)
-#            fresh_population.append( a )
-
-        self.population = fresh_population
-
-        print "New population size is: ", len( self.population )
-
-        return child, self.fitness(child)
 
 if __name__ == "__main__":
 
@@ -193,24 +84,37 @@ if __name__ == "__main__":
 
 
     def fitness_function( path ):
-        if len(set(path)) < len(path):
-            # low fitness value is good fitness !
-            return 50000
         return len( Path( path, distance ) )
 
-    g = GeneticAlgorithm(
-        phenotypes=cities[:6],
-        population_size=10,
-        fitness_function=fitness_function
-    )
-
-    # pprint( g.population )
-
-    p = g.to_pool()
-
-    for i in range(20):
-        print p.generation()
 
 
+    encoder = LetterEncoder( cities )
 
+    pool = Pool( fitness_function, encoder )
+
+    population_size = 10
+
+    while len(pool) < population_size:
+        s = sample( cities, len(cities) )
+        s = encoder.to_genotype( s )
+        pool.add( s )
+
+    pprint( pool.population )
+    pprint( pool.rank() )
+
+    # two best parents
+    print pool.rank()[:2]
+
+    c = Child( pool.rank()[:2] )
+    c.crossover()
+
+
+
+
+    # Er PMX eneste passende crossover til TSP?
+    # Kan jeg gi individet det laveste mulige score hvis han ikke passerer
+        # alle byene (dvs. besøker samme by to ganger) ?
+    # Bør fitness function være normalisert mot populasjonens beste resultat?
+    # Kan man enkode individet som tegn/bokstavstrenger?
+    #
 
