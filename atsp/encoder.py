@@ -1,5 +1,5 @@
 #!/usr/bin/env python2.7
-# -*- coding: utf8 -*- 
+# -*- coding: utf8 -*-
 
 
 class Encoder:
@@ -7,7 +7,8 @@ class Encoder:
 
 class LetterEncoder(Encoder):
     """
-    Maps chromosomes to the alphabet
+    Maps chromosomes to the symbols from the ASCII table
+    with corresponding limitations, beginning with the letter 'A'
     """
 
     def __init__( self, phenotypes ):

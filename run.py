@@ -3,9 +3,9 @@
 
 
 from atsp.util import Path
-from atsp import cities, distance
+from atsp.context import cities, distance
 from atsp.encoder import LetterEncoder
-from atsp.pool import Pool, Child
+from atsp.pool import *
 from itertools import permutations
 from random import sample, choice, randint
 from pprint import pprint
@@ -64,7 +64,7 @@ if __name__ == "__main__":
     number_of_cities = 9
     cities = cities[:number_of_cities]
 
-    s = BruteForce( cities, repeat_cycles=1 )
+    # s = BruteForce( cities, repeat_cycles=1 )
 
     """
     Genetic Algorithm: Next, write a genetic algorithm (GA) to solve the problem.
@@ -109,20 +109,18 @@ if __name__ == "__main__":
     # two best parents
     # print pool.rank()[:2]
 
-    counter = 0
-    while raw_input( "Continue..." ) != "n":
-        counter += 1
-        pprint( pool.population )
-        print
-        print
-        print "Best child for generation ", counter, ": ", pool.rank()[0], "\n", encoder.to_phenotype( pool.rank()[0][1] )
-        pool.generation()
-        print
-        print
+#    counter = 0
+#    while raw_input( "Continue..." ) != "n":
+#        counter += 1
+#        pprint( pool.population )
+#        print
+#        print
+#        print "Best child for generation ", counter, ": ", pool.rank()[0], "\n", encoder.to_phenotype( pool.rank()[0][1] )
+#        pool.generation()
+#        print
+#        print
 
     # pprint( pool.rank() )
-
-
 
 
     # Er PMX eneste passende crossover til TSP?
@@ -155,3 +153,15 @@ Ilyas-MacBook-Air:INF3490 ilyakh$ ./run.py
 0.291972875595 :  3283 ('Bergen', 'Stavanger', 'Kristiansand', 'Oslo', 'Lillehammer', 'Troms\xf8', 'Hammerfest', 'Kirkenes')
 Continue...
     """
+
+
+
+    pool = UniqueChromosomePool(
+        encoder=encoder,
+        fitness_function=fitness_function,
+        population_size=population_size
+    )
+
+    pool.populate()
+
+    pprint( pool.rank(normalized=True) )

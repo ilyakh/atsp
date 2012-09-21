@@ -35,7 +35,7 @@ class Filter:
 class UniqueGeneFilter( Filter ):
 
     def __init__( self, selector ):
-        self.mutator =
+        Filter.__init__( self, selector=selector, mutator=unique_mutator )
 
     def __call__( self, individual ):
         mutant = []
