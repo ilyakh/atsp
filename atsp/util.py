@@ -8,7 +8,6 @@ __all__ = [
 ]
 
 
-
 class Path:
     def __init__( self, path, distance_table ):
         self.path = path

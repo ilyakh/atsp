@@ -61,8 +61,10 @@ if __name__ == "__main__":
     it to take with all 14 cities?
     """
 
-    number_of_cities = 6
-    s = BruteForce( cities[:number_of_cities], repeat_cycles=1 )
+    number_of_cities = 9
+    cities = cities[:number_of_cities]
+
+    s = BruteForce( cities, repeat_cycles=1 )
 
     """
     Genetic Algorithm: Next, write a genetic algorithm (GA) to solve the problem.
@@ -83,30 +85,42 @@ if __name__ == "__main__":
     """
 
 
+
+
     def fitness_function( path ):
         return len( Path( path, distance ) )
 
-
-
     encoder = LetterEncoder( cities )
 
-    pool = Pool( fitness_function, encoder )
+    population_size = 200
+    pool = Pool( population_size, fitness_function, encoder )
 
-    population_size = 10
+
+
 
     while len(pool) < population_size:
         s = sample( cities, len(cities) )
         s = encoder.to_genotype( s )
         pool.add( s )
 
-    pprint( pool.population )
-    pprint( pool.rank() )
+    # pprint( pool.population )
+    # pprint( pool.rank() )
 
     # two best parents
-    print pool.rank()[:2]
+    # print pool.rank()[:2]
 
-    c = Child( pool.rank()[:2] )
-    c.crossover()
+    counter = 0
+    while raw_input( "Continue..." ) != "n":
+        counter += 1
+        pprint( pool.population )
+        print
+        print
+        print "Best child for generation ", counter, ": ", pool.rank()[0], "\n", encoder.to_phenotype( pool.rank()[0][1] )
+        pool.generation()
+        print
+        print
+
+    # pprint( pool.rank() )
 
 
 
@@ -118,3 +132,26 @@ if __name__ == "__main__":
     # Kan man enkode individet som tegn/bokstavstrenger?
     #
 
+    #  an element from a set; it must be a member.
+
+    """
+        Continue...
+Best child for generation  831 :  (3285, 'CBHEFDGA')
+['Kirkenes', 'Hammerfest', 'Troms\xf8', 'Lillehammer', 'Oslo', 'Kristiansand', 'Stavanger', 'Bergen']
+set(['AGCBEDFH',
+     'CBHEAGDF',
+     'CBHEFAGD',
+     'CBHEFDAG',
+     'CBHEFDGA',
+     'CBHEFGAD',
+     'CBHFEAGD',
+     'CBHFEDAG',
+     'GACBEDFH',
+     'HBCEFDGA'])
+
+
+Continue...n
+Ilyas-MacBook-Air:INF3490 ilyakh$ ./run.py
+0.291972875595 :  3283 ('Bergen', 'Stavanger', 'Kristiansand', 'Oslo', 'Lillehammer', 'Troms\xf8', 'Hammerfest', 'Kirkenes')
+Continue...
+    """

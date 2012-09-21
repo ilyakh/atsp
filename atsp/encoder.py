@@ -1,6 +1,7 @@
 #!/usr/bin/env python2.7
 # -*- coding: utf8 -*- 
 
+
 class Encoder:
     pass
 
@@ -22,9 +23,6 @@ class LetterEncoder(Encoder):
         self.inverse_mapping = dict(
             [ (v, k) for k,v in self.mapping.items() ]
         )
-
-        print "mapping", self.mapping
-        print "inverse_mapping", self.inverse_mapping
 
     def encode( self, phenotype ):
         return self.inverse_mapping[phenotype]
