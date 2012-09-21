@@ -3,6 +3,7 @@
 
 from random import sample, choice, randint, randrange
 from util import Path
+from mutation import *
 from context import distance
 
 
@@ -77,8 +78,30 @@ class UniqueChromosomePool:
         # returns true if the individual was not already in the population
         return len( self.population ) > original_size
 
+    def exclude( self, chromosome ):
+        self.population = self.population.difference(
+            set([chromosome])
+        )
+
+    def exclude_many( self, collection ):
+        self.population = self.population.difference(
+            set(collection)
+        )
+
+
+    def is_full( self ):
+        return len( self.population ) == self.population_size
+
     def __len__( self ):
         return len( self.population )
+
+    def generation( self ):
+        ranking = self.rank()
+        candidates = [c for i,c,f in ranking[-len(ranking)/2:-1]]
+        self.exclude_many( candidates )
+
+        # describe the ranges of mutation and how things are stored
+        # create a ranking object that 
 
 
 
@@ -93,27 +116,25 @@ class UniqueChromosomePool:
                 self.encoder.to_phenotype(chromosome)
             )
             out.append(
-                ( TSPIndividual(chromosome), fitness )
+                ( TSPIndividual(chromosome), chromosome, fitness )
             )
 
         if normalized:
-
             normalized_out = []
-            best_fitness = min( [f for i,f in out] )
+            best_fitness = min( [f for i,c,f in out] )
 
-            for i,f in out:
+            for i,c,f in out:
                 normalized_out.append(
                     # inverts the normalized value to fit the approximation
-                    ( i, 1.0 / (f / float(best_fitness)) )
+                    ( i, i.chromosome, 1.0 / (f / float(best_fitness)) )
             )
-
             out = normalized_out
 
         return sorted( out, key=lambda x: x[1] )
 
 
     def populate( self ):
-        while len( self.population ) < self.population_size:
+        while not self.is_full():
             s = sample( self.encoder.phenotypes, len( self.encoder.phenotypes ) )
             s = self.encoder.to_genotype( s )
             self.population.add( s )

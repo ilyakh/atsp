@@ -61,7 +61,7 @@ if __name__ == "__main__":
     it to take with all 14 cities?
     """
 
-    number_of_cities = 9
+    number_of_cities = 8
     cities = cities[:number_of_cities]
 
     # s = BruteForce( cities, repeat_cycles=1 )
@@ -92,7 +92,7 @@ if __name__ == "__main__":
 
     encoder = LetterEncoder( cities )
 
-    population_size = 200
+    population_size = 10
     pool = Pool( population_size, fitness_function, encoder )
 
 
@@ -109,16 +109,16 @@ if __name__ == "__main__":
     # two best parents
     # print pool.rank()[:2]
 
-#    counter = 0
-#    while raw_input( "Continue..." ) != "n":
-#        counter += 1
-#        pprint( pool.population )
-#        print
-#        print
-#        print "Best child for generation ", counter, ": ", pool.rank()[0], "\n", encoder.to_phenotype( pool.rank()[0][1] )
-#        pool.generation()
-#        print
-#        print
+    counter = 0
+    while raw_input( "Continue..." ) != "n":
+        counter += 1
+        pprint( pool.population )
+        print
+        print
+        print "Best child for generation ", counter, ": ", pool.rank()[0], "\n", encoder.to_phenotype( pool.rank()[0][1] )
+        pool.generation()
+        print
+        print
 
     # pprint( pool.rank() )
 
@@ -165,3 +165,26 @@ Continue...
     pool.populate()
 
     pprint( pool.rank(normalized=True) )
+
+    for i in range( 5 ):
+        pool.generation()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -37,9 +37,8 @@ class UniqueGeneFilter( Filter ):
     def __init__( self, selector ):
         Filter.__init__( self, selector=selector, mutator=unique_mutator )
 
-    def __call__( self, individual ):
+    def __call__( self, chromosome ):
         mutant = []
-        chromosome = individual.chromosome
 
         for locus in list( chromosome ):
             if self.selector():
@@ -49,4 +48,5 @@ class UniqueGeneFilter( Filter ):
                 # assigns the unchanged value
                 mutant.append( locus )
 
+        print mutant
         return mutant
