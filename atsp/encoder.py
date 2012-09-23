@@ -11,11 +11,11 @@ class LetterEncoder(Encoder):
     with corresponding limitations, beginning with the letter 'A'
     """
 
-    def __init__( self, phenotypes ):
-        self.phenotypes = phenotypes
+    def __init__( self, ALL_GENES ):
+        self.ALL_GENES = ALL_GENES
 
         # creates mappings for the encoding
-        self.mapping = dict( enumerate( self.phenotypes ) )
+        self.mapping = dict( enumerate( self.ALL_GENES ) )
         # maps the genotype to phenotype {A -> Bergen, ... }
         self.mapping = dict(
             [ ( chr(65 + int(k)), v ) for k,v in self.mapping.items() ]

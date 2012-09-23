@@ -86,7 +86,6 @@ if __name__ == "__main__":
 
 
 
-
     def fitness_function( path ):
         return len( Path( path, distance ) )
 
@@ -94,7 +93,6 @@ if __name__ == "__main__":
 
     population_size = 10
     pool = Pool( population_size, fitness_function, encoder )
-
 
 
 
@@ -133,25 +131,27 @@ if __name__ == "__main__":
     #  an element from a set; it must be a member.
 
     """
-        Continue...
-Best child for generation  831 :  (3285, 'CBHEFDGA')
-['Kirkenes', 'Hammerfest', 'Troms\xf8', 'Lillehammer', 'Oslo', 'Kristiansand', 'Stavanger', 'Bergen']
-set(['AGCBEDFH',
-     'CBHEAGDF',
-     'CBHEFAGD',
-     'CBHEFDAG',
-     'CBHEFDGA',
-     'CBHEFGAD',
-     'CBHFEAGD',
-     'CBHFEDAG',
-     'GACBEDFH',
-     'HBCEFDGA'])
+            Continue...
+    Best child for generation  831 :  (3285, 'CBHEFDGA')
+    ['Kirkenes', 'Hammerfest', 'Troms\xf8', 'Lillehammer', 'Oslo',
+    'Kristiansand', 'Stavanger', 'Bergen']
+    set(['AGCBEDFH',
+         'CBHEAGDF',
+         'CBHEFAGD',
+         'CBHEFDAG',
+         'CBHEFDGA',
+         'CBHEFGAD',
+         'CBHFEAGD',
+         'CBHFEDAG',
+         'GACBEDFH',
+         'HBCEFDGA'])
 
 
-Continue...n
-Ilyas-MacBook-Air:INF3490 ilyakh$ ./run.py
-0.291972875595 :  3283 ('Bergen', 'Stavanger', 'Kristiansand', 'Oslo', 'Lillehammer', 'Troms\xf8', 'Hammerfest', 'Kirkenes')
-Continue...
+    Continue...n
+    Ilyas-MacBook-Air:INF3490 ilyakh$ ./run.py
+    0.291972875595 :  3283 ('Bergen', 'Stavanger', 'Kristiansand', 'Oslo',
+    'Lillehammer', 'Troms\xf8', 'Hammerfest', 'Kirkenes')
+    Continue...
     """
 
 
@@ -164,10 +164,13 @@ Continue...
 
     pool.populate()
 
-    pprint( pool.rank(normalized=True) )
-
     for i in range( 5 ):
+        phenotypes = []
+        for c in pool.population:
+            phenotypes.append( encoder.to_phenotype( c ) )
+        pprint( Ranking( phenotypes, fitness_function ).normalized() )
         pool.generation()
+
 
 
 

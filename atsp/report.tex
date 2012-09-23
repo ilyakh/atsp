@@ -6,3 +6,30 @@ The solution utilizes fitness score as integer for increased precision
 and speed. For certain application the fitness can be converted to
 ratios of fitness represendet as floating point numbers via rank-function
 that returns a sorted list of individuals
+
+
+Set up a list of possible constraints this exercise falls under:
+
+    _Problem specific:
+    Encoding (yes/no)? If yes, which one?
+    Uniqueness of a gene in a chromosome
+    Uniqueness of a chromosome in the pool
+    Length of a chromosome (fixed or variable)
+    Size of the population (fixed or variable)
+    Evaluation strategy: ranking, normalization, distribution
+    The representation of fitness: minimalization or maximalization problem?
+    Termination conditions
+    Ordering is important: which crossover needs does this lead to?
+
+
+    _Algorithm specific:
+    Parent selection
+    Survivor selection
+
+
+It might be a good practice to encode all the data at once, and decode only
+when visual feedback is needed.
+
+Do a progress evaluation: a period of no progress
+(in comparison to the previous): STOP
+

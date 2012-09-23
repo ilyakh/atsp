@@ -34,7 +34,7 @@ class Child:
 
 
 
-
+# [/] individual must take encoder as parameter to return different representations
 class Individual:
     def __init__( self, chromosome ):
         self.chromosome = chromosome
@@ -70,6 +70,8 @@ class UniqueChromosomePool:
         #
         self.population = set() # of strings
 
+        POSSIBLE_GENES = None
+
     def add( self, individual ):
         # fetches the string representation of the individual
         chromosome = individual.chromosome
@@ -88,68 +90,108 @@ class UniqueChromosomePool:
             set(collection)
         )
 
-
     def is_full( self ):
-        return len( self.population ) == self.population_size
+        return len( self ) == self.population_size
 
     def __len__( self ):
         return len( self.population )
 
-    def generation( self ):
-        ranking = self.rank()
-        candidates = [c for i,c,f in ranking[-len(ranking)/2:-1]]
-        self.exclude_many( candidates )
-
-        # describe the ranges of mutation and how things are stored
-        # create a ranking object that 
-
-
-
-    def rank( self, normalized=False ):
-
-        out = []
-        best_fitness = None
-
-        for chromosome in self.population:
-            individual = TSPIndividual( chromosome )
-            fitness = self.fitness_function(
-                self.encoder.to_phenotype(chromosome)
-            )
-            out.append(
-                ( TSPIndividual(chromosome), chromosome, fitness )
-            )
-
-        if normalized:
-            normalized_out = []
-            best_fitness = min( [f for i,c,f in out] )
-
-            for i,c,f in out:
-                normalized_out.append(
-                    # inverts the normalized value to fit the approximation
-                    ( i, i.chromosome, 1.0 / (f / float(best_fitness)) )
-            )
-            out = normalized_out
-
-        return sorted( out, key=lambda x: x[1] )
-
 
     def populate( self ):
         while not self.is_full():
-            s = sample( self.encoder.phenotypes, len( self.encoder.phenotypes ) )
+            s = sample( self.encoder.ALL_GENES, len( self.encoder.ALL_GENES ) )
             s = self.encoder.to_genotype( s )
             self.population.add( s )
 
+    def generation( self ):
+        # translate the gene to phenotypes
+        phenotypes = [
+            self.encoder.to_phenotype(c) for c in self.population
+        ]
+
+        # builds a ranking object that orders individuals by their fitness
+        ranking = Ranking( phenotypes, self.fitness_function )
+
+        # chooses a set of candidates for GENITOR removal
+        # translates them back to genotype
+
+        median_index = ranking.median_index()
+
+        candidates = [
+            self.encoder.to_genotype(c)
+            for f,c in ranking.ranked_chromosomes[-median_index:-1]
+        ]
+        # [/] instead of slicing a range, just make a median value limit and
+        # compare in a while loop
+
+        # removes the least fit candidates from the population
+        self.exclude_many( candidates )
+
+        # mutates the existing worst
+        # to include the children, a new rank has to be generated once more
+        # ...
+
+        
+
+        # adds crossover children of the best elements
+        # ...
+
+        # describe the ranges of mutation and how things are stored
+        # create a ranking object that
 
 
 
 
 
+class Ranking:
+    def __init__( self, population, fitness_of ):
+        # creates an empty list
+        self.ranked_chromosomes = []
+        self.fitness_of = fitness_of
 
+        # fills the empty list with tuples of chromosome and its fitness
+        for c in population:
+            self.ranked_chromosomes.append(
+                ( fitness_of(c), c )
+            )
 
+        # sorts the list of tuples by the fitness of a chromosome
+        # (in the previously generated tuple, the fitness has index '1')
+        self.ranked_chromosomes = sorted(
+            self.ranked_chromosomes, key=lambda t: t[0]
+        )
 
+    def __getitem__( self, index ):
+        return self.ranked_chromosomes[index]
 
+    def __repr__( self ):
+        return "\n".join( [ c.__str__() for c,f in self.ranked_chromosomes ] )
 
+    def normalized( self ):
+        normalized_out = []
+        # finds the best fitness value of the population to normalize
+        # the rest against
+        best_fitness = min( [f for f,c in self.ranked_chromosomes] )
 
+        for f,c in self.ranked_chromosomes:
+            normalized_out.append(
+                # inverts the normalized value to fit the approximation
+                ( 1.0 / (f / float(best_fitness)), c )
+        )
+
+        return normalized_out
+
+    def __iter__( self ):
+        return self.ranked_chromosomes.next()
+
+    def median_index( self ):
+        return len( self.ranked_chromosomes ) / 2
+
+    def median_value( self ):
+        pass
+
+    def mean_value( self ):
+        pass
 
 
 
@@ -161,7 +203,7 @@ class Pool:
         self.population = set()
         self.fitness_function = fitness_function
         self.encoder = encoder
-        self.phenotypes = encoder.phenotypes
+        self.ALL_GENES = encoder.ALL_GENES
         self.population_size = population_size
 
     def add( self, chromosome ):
@@ -209,42 +251,3 @@ class Pool:
         while len(self.population) > self.population_size:
             candidates = self.rank()[len(self.rank())/2:len(self.rank())]
             self.population.remove( choice(candidates)[1] )
-
-
-
-        # slice the chromosomes
-#        male_part = male[:len(male)/2+1]
-#        female_part = female[len(male)/2:-1]
-
-        # do a random mutation on a reoccuring element
-
-#        print female_part, male_part
-
-        # combine the chromosomes into a child
-        # child = male_part + female_part
-#
-#        child = []
-
-        # [!] give up
-#
-#        child = "".join(child)
-
-
-        # mutate on the basis of rank
-
-#        def mutate( chromosome ):
-#            mutant = list(chromosome)
-#            mutant[randint(0, len(chromosome))-1] = choice(list(self.genes))
-#            return mutant
-#
-#        fresh_population = []
-#
-#        for k,v in ranking:
-#            a = v
-#            for i in range(k):
-#                a = mutate(a)
-#            fresh_population.append( a )
-
-#        print "New population size is: ", len( self.population )
-
-#        return child, self.fitness(child)
