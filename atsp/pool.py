@@ -8,32 +8,6 @@ from context import distance
 
 
 
-class Child:
-    def __init__( self, parents ):
-        self.parents = parents
-
-    def crossover( self ):
-        f = list(self.parents[0] )
-        m = list( self.parents[1] )
-        child = list()
-
-        start = randint(0, len(f)-1)
-        end = randrange(start,len(f))
-
-        child.extend( m[start:end] )
-        quota = len(f) - len(child)
-
-        for e in (set(f) - set(child)):
-            child.append( e )
-
-        if len(child) < len(f):
-            for e in ( (set(f) | set(m)) - set(child) ):
-                child.append(e)
-
-        return "".join(child)
-
-
-
 # [/] individual must take encoder as parameter to return different representations
 class Individual:
     def __init__( self, chromosome ):
@@ -55,10 +29,6 @@ class UniqueGeneIndividual(Individual):
 
 class TSPIndividual(UniqueGeneIndividual):
     pass
-
-
-
-
 
 
 
@@ -129,25 +99,17 @@ class UniqueChromosomePool:
 
         # mutates the existing worst
         # to include the children, a new rank has to be generated once more
-        # ...
-
-        
-
         # adds crossover children of the best elements
-        # ...
-
         # describe the ranges of mutation and how things are stored
         # create a ranking object that
 
 
-
-
-
 class Ranking:
-    def __init__( self, population, fitness_of ):
+    def __init__( self, population, fitness_of, maximize=True ):
         # creates an empty list
         self.ranked_chromosomes = []
         self.fitness_of = fitness_of
+        self.maximize = maximize
 
         # fills the empty list with tuples of chromosome and its fitness
         for c in population:
@@ -157,12 +119,13 @@ class Ranking:
 
         # sorts the list of tuples by the fitness of a chromosome
         # (in the previously generated tuple, the fitness has index '1')
+
         self.ranked_chromosomes = sorted(
-            self.ranked_chromosomes, key=lambda t: t[0]
+            self.ranked_chromosomes, key=lambda t: t[0], reverse=maximize
         )
 
     def __getitem__( self, index ):
-        return self.ranked_chromosomes[index]
+        return self.ranked_chromosomes[index+1]
 
     def __repr__( self ):
         return "\n".join( [ c.__str__() for c,f in self.ranked_chromosomes ] )
@@ -171,13 +134,19 @@ class Ranking:
         normalized_out = []
         # finds the best fitness value of the population to normalize
         # the rest against
-        best_fitness = min( [f for f,c in self.ranked_chromosomes] )
-
-        for f,c in self.ranked_chromosomes:
-            normalized_out.append(
-                # inverts the normalized value to fit the approximation
-                ( 1.0 / (f / float(best_fitness)), c )
-        )
+        if self.maximize:
+            best_fitness = max( [f for f,c in self.ranked_chromosomes] )
+            for f,c in self.ranked_chromosomes:
+                normalized_out.append(
+                    ( f / float(best_fitness), c )
+                )
+        else:
+            best_fitness = min( [f for f,c in self.ranked_chromosomes] )
+            for f,c in self.ranked_chromosomes:
+                normalized_out.append(
+                    # inverts the normalized value to fit the approximation
+                    ( 1.0 / (f / float(best_fitness)), c )
+            )
 
         return normalized_out
 
@@ -191,9 +160,14 @@ class Ranking:
         pass
 
     def mean_value( self ):
-        pass
+        values = [f for f,c in self.ranked_chromosomes]
+        return sum(values) / len( values )
 
+    def best( self, quantity=1 ):
+        return self.ranked_chromosomes[0:quantity]
 
+    def worst( self, quantity=1 ):
+        return self.ranked_chromosomes[-quantity:-1]
 
 
 
@@ -251,3 +225,28 @@ class Pool:
         while len(self.population) > self.population_size:
             candidates = self.rank()[len(self.rank())/2:len(self.rank())]
             self.population.remove( choice(candidates)[1] )
+
+
+class Child:
+    def __init__( self, parents ):
+        self.parents = parents
+
+    def crossover( self ):
+        f = list(self.parents[0] )
+        m = list( self.parents[1] )
+        child = list()
+
+        start = randint(0, len(f)-1)
+        end = randrange(start,len(f))
+
+        child.extend( m[start:end] )
+        quota = len(f) - len(child)
+
+        for e in (set(f) - set(child)):
+            child.append( e )
+
+        if len(child) < len(f):
+            for e in ( (set(f) | set(m)) - set(child) ):
+                child.append(e)
+
+        return "".join(child)

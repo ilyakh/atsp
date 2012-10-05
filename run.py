@@ -168,7 +168,11 @@ if __name__ == "__main__":
         phenotypes = []
         for c in pool.population:
             phenotypes.append( encoder.to_phenotype( c ) )
-        pprint( Ranking( phenotypes, fitness_function ).normalized() )
+
+        pprint(
+            Ranking( phenotypes, fitness_function, maximize=False ).normalized()
+        )
+
         pool.generation()
 
 
