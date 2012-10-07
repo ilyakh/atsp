@@ -38,10 +38,79 @@ class BruteForce(Solution):
 
 
 
-class GeneticAlgorithm(Solution):
+class EvolutionaryAlgorithm(Solution):
 
-    def __init__( self, phenotypes, population_size, fitness_function ):
-        pass
+    def __init__( self ):
+
+        def fitness_function( path ):
+            return len( Path( path, distance ) )
+
+        encoder = LetterEncoder( cities )
+
+        population_size = 10
+        pool = Pool( population_size, fitness_function, encoder )
+
+        while len(pool) < population_size:
+            s = sample( cities, len(cities) )
+            s = encoder.to_genotype( s )
+            pool.add( s )
+
+        counter = 0
+        while raw_input( "Continue..." ) != "n":
+            counter += 1
+            pprint( pool.population )
+            print
+            print
+            print "Best child for generation ", counter, ": ", pool.rank()[0], "\n", encoder.to_phenotype( pool.rank()[0][1] )
+            pool.generation()
+            print
+            print
+
+
+
+        """
+                Continue...
+        Best child for generation  831 :  (3285, 'CBHEFDGA')
+        ['Kirkenes', 'Hammerfest', 'Troms\xf8', 'Lillehammer', 'Oslo',
+        'Kristiansand', 'Stavanger', 'Bergen']
+        set(['AGCBEDFH',
+             'CBHEAGDF',
+             'CBHEFAGD',
+             'CBHEFDAG',
+             'CBHEFDGA',
+             'CBHEFGAD',
+             'CBHFEAGD',
+             'CBHFEDAG',
+             'GACBEDFH',
+             'HBCEFDGA'])
+
+
+        Continue...n
+        Ilyas-MacBook-Air:INF3490 ilyakh$ ./run.py
+        0.291972875595 :  3283 ('Bergen', 'Stavanger', 'Kristiansand', 'Oslo',
+        'Lillehammer', 'Troms\xf8', 'Hammerfest', 'Kirkenes')
+        Continue...
+        """
+
+        pool = UniqueChromosomePool(
+            encoder=encoder,
+            fitness_function=fitness_function,
+            population_size=population_size
+        )
+
+        pool.populate()
+
+        for i in range( 5 ):
+            phenotypes = []
+            for c in pool.population:
+                phenotypes.append( encoder.to_phenotype( c ) )
+
+            pprint(
+                Ranking( phenotypes, fitness_function, maximize=False ).normalized()
+            )
+
+            pool.generation()
+
 
 
 
@@ -61,10 +130,10 @@ if __name__ == "__main__":
     it to take with all 14 cities?
     """
 
-    number_of_cities = 8
+    number_of_cities = 2
     cities = cities[:number_of_cities]
 
-    # s = BruteForce( cities, repeat_cycles=1 )
+    s = BruteForce( cities, repeat_cycles=5 )
 
     """
     Genetic Algorithm: Next, write a genetic algorithm (GA) to solve the problem.
@@ -84,98 +153,12 @@ if __name__ == "__main__":
     algorithm?
     """
 
+    # You have to count the inspected chromosomes.
+    # Easiest way to do this is to create a set of checked values.
+    # If this history is kept, then it can be also used to check children and
+    # . mutation results for repetition.
 
-
-    def fitness_function( path ):
-        return len( Path( path, distance ) )
-
-    encoder = LetterEncoder( cities )
-
-    population_size = 10
-    pool = Pool( population_size, fitness_function, encoder )
-
-
-
-    while len(pool) < population_size:
-        s = sample( cities, len(cities) )
-        s = encoder.to_genotype( s )
-        pool.add( s )
-
-    # pprint( pool.population )
-    # pprint( pool.rank() )
-
-    # two best parents
-    # print pool.rank()[:2]
-
-    counter = 0
-    while raw_input( "Continue..." ) != "n":
-        counter += 1
-        pprint( pool.population )
-        print
-        print
-        print "Best child for generation ", counter, ": ", pool.rank()[0], "\n", encoder.to_phenotype( pool.rank()[0][1] )
-        pool.generation()
-        print
-        print
-
-    # pprint( pool.rank() )
-
-
-    # Er PMX eneste passende crossover til TSP?
-    # Kan jeg gi individet det laveste mulige score hvis han ikke passerer
-        # alle byene (dvs. besøker samme by to ganger) ?
-    # Bør fitness function være normalisert mot populasjonens beste resultat?
-    # Kan man enkode individet som tegn/bokstavstrenger?
-    #
-
-    #  an element from a set; it must be a member.
-
-    """
-            Continue...
-    Best child for generation  831 :  (3285, 'CBHEFDGA')
-    ['Kirkenes', 'Hammerfest', 'Troms\xf8', 'Lillehammer', 'Oslo',
-    'Kristiansand', 'Stavanger', 'Bergen']
-    set(['AGCBEDFH',
-         'CBHEAGDF',
-         'CBHEFAGD',
-         'CBHEFDAG',
-         'CBHEFDGA',
-         'CBHEFGAD',
-         'CBHFEAGD',
-         'CBHFEDAG',
-         'GACBEDFH',
-         'HBCEFDGA'])
-
-
-    Continue...n
-    Ilyas-MacBook-Air:INF3490 ilyakh$ ./run.py
-    0.291972875595 :  3283 ('Bergen', 'Stavanger', 'Kristiansand', 'Oslo',
-    'Lillehammer', 'Troms\xf8', 'Hammerfest', 'Kirkenes')
-    Continue...
-    """
-
-
-
-    pool = UniqueChromosomePool(
-        encoder=encoder,
-        fitness_function=fitness_function,
-        population_size=population_size
-    )
-
-    pool.populate()
-
-    for i in range( 5 ):
-        phenotypes = []
-        for c in pool.population:
-            phenotypes.append( encoder.to_phenotype( c ) )
-
-        pprint(
-            Ranking( phenotypes, fitness_function, maximize=False ).normalized()
-        )
-
-        pool.generation()
-
-
+    e = EvolutionaryAlgorithm()
 
 
 

@@ -1,3 +1,39 @@
+Case for the Swap mutation
+
+    Since the atsp is mostly about recombination and a chromosome already
+    contains all possible genes. The swap tactic is as effective
+    as any other intricate way of mutation.
+
+    This is attributed to the fact that the procedures that guarantee the
+    no-duplicate policy (do not visit the same city twice), often take more
+    time (just like set addition in python).
+
+    So the Swap mutation is appropriate for the problems of recombinatory sort,
+    where a chromosome contains all possible genes and so every gene has to
+    occur only once.
+
+    Another way of approaching the uniqueness of set, is via selection tactic:
+    penalty the chromosomes that repeat a gene, render them useless. But in this
+    scenario, the search for allele-unique chromosomes is a problem in itself
+    that will take more of the unnecessary processing power.
+
+
+Crossover
+
+    PMX crossover between parents seems to be the most fitting tactic amongst
+    the operators mentioned in the textbook. However, I do not implement this
+    crossover operator for this problem: instead, I go for a simpler solution
+    of splicing children by some index, depending on the dominance of each
+    parent.
+
+    n-th from first parent and to the position where the second parent has m.
+    m-th from the second parent to the position where the first parent has n.
+
+
+Mutation rate and mating rate
+
+
+
 This report describes my findings in an attempt to solve an
 asymmetric travelling salesman problem through the approach
 of genetic algorithm.
